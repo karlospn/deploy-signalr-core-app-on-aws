@@ -1,3 +1,4 @@
+using System.Reflection.Metadata.Ecma335;
 using ChatRoom.Hub;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -26,6 +27,7 @@ namespace ChatRoom
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<ChatSampleHub>("/chat");
+                endpoints.MapGet("/health", () => "Ok");
             });
         }
     }
