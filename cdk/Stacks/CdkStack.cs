@@ -33,6 +33,11 @@ namespace FargateCdkStack.Stacks
                 vpc.Vpc,
                 publicAlb.Alb,
                 service.FargateService);
+
+            _ = new ElasticCacheConstruct(this,
+                "redis-cache-construct-signalr-core-demo",
+                vpc.Vpc,
+                service.FargateService);
         }
     }
 }
