@@ -19,7 +19,13 @@ namespace ChatRoom
         {
             services
                 .AddSignalR()
-                .AddStackExchangeRedis(Configuration["CACHE_URL"], 
+                //Use Azure SignalR Service
+                //.AddAzureSignalR(opts =>
+                //{
+                //    opts.ConnectionString = Configuration["AzureSignalRServiceEndpoint"];
+                //});
+                //Use a Redis Instance (AWS ElasticCache)
+                .AddStackExchangeRedis(Configuration["CACHE_URL"],
                     opts =>
                     {
                         opts.Configuration.ChannelPrefix = "ChatRoom";

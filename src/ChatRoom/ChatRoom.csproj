@@ -6,6 +6,7 @@
 	
   <ItemGroup>
 	<PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="6.0.6" />
+	<PackageReference Include="Microsoft.Azure.SignalR" Version="1.18.1" />
   </ItemGroup>
 
   <ItemGroup>
