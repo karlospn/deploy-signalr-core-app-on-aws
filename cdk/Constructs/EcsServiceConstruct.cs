@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.ECS;
+using Amazon.CDK.AWS.ElastiCache;
 using Amazon.CDK.AWS.ElasticLoadBalancingV2;
 using Constructs;
 using Protocol = Amazon.CDK.AWS.EC2.Protocol;
@@ -15,14 +16,16 @@ namespace FargateCdkStack.Constructs
             string id,
             Vpc vpc,
             Cluster cluster,
-            ApplicationLoadBalancer pubAlb)
+            ApplicationLoadBalancer pubAlb, 
+            CfnCacheCluster redis,
+            SecurityGroup redisSg)
             : base(scope, id)
         {
-            var task = CreateTaskDefinition();
-            FargateService = CreateEcsService(vpc, cluster, pubAlb, task);
+            var task = CreateTaskDefinition(redis);
+            FargateService = CreateEcsService(vpc, cluster, pubAlb, task, redisSg);
         }
 
-        private FargateTaskDefinition CreateTaskDefinition()
+        private FargateTaskDefinition CreateTaskDefinition(CfnCacheCluster redis)
         {
             var task = new FargateTaskDefinition(this,
                 "task-definition-ecs-signalr-core-demo",
@@ -49,6 +52,10 @@ namespace FargateCdkStack.Constructs
                         {
                             ContainerPort = 80
                         }
+                    },
+                    Environment = new Dictionary<string, string>
+                    {
+                        {"CACHE_URL", $"{redis.AttrRedisEndpointAddress}:{redis.AttrRedisEndpointPort}"}
                     }
                 });
 
@@ -58,7 +65,8 @@ namespace FargateCdkStack.Constructs
         private FargateService CreateEcsService(Vpc vpc,
             Cluster cluster,
             ApplicationLoadBalancer pubAlb,
-            FargateTaskDefinition task)
+            FargateTaskDefinition task,
+            SecurityGroup redisSg)
         {
             
             var sg = new SecurityGroup(this,
@@ -76,7 +84,15 @@ namespace FargateCdkStack.Constructs
                 FromPort = 80,
                 ToPort = 80,
                 Protocol = Protocol.TCP,
-                StringRepresentation = string.Empty
+                StringRepresentation = "Allow connection from the ALB to the Fargate Service."
+            }));
+
+            sg.Connections.AllowTo(redisSg.Connections, new Port(new PortProps
+            {
+                FromPort = 6379,
+                ToPort = 6379,
+                Protocol = Protocol.TCP,
+                StringRepresentation = "Allow the Fargate service to connect to the Redis Cluster."
             }));
 
             var service = new FargateService(this,

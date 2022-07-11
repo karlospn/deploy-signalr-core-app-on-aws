@@ -22,11 +22,17 @@ namespace FargateCdkStack.Stacks
                 "pub-alb-construct-signalr-core-demo",
                 vpc.Vpc);
 
+            var cache = new ElasticCacheConstruct(this,
+                "redis-cache-construct-signalr-core-demo",
+                vpc.Vpc);
+
             var service = new EcsServiceConstruct(this,
                 "ecs-service-construct-signalr-core-demo",
                 vpc.Vpc,
                 fg.Cluster,
-                publicAlb.Alb);
+                publicAlb.Alb,
+                cache.Redis,
+                cache.RedisSg);
 
             _ = new TargetGroupConstruct(this,
                 "alb-tg-construct-signalr-core-demo",
@@ -34,10 +40,6 @@ namespace FargateCdkStack.Stacks
                 publicAlb.Alb,
                 service.FargateService);
 
-            _ = new ElasticCacheConstruct(this,
-                "redis-cache-construct-signalr-core-demo",
-                vpc.Vpc,
-                service.FargateService);
         }
     }
 }
