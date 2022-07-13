@@ -7,15 +7,12 @@ from diagrams.aws.network import NATGateway
 
 with Diagram("SignalR Core Application", show=False):
     
-    with Cluster("public network"):
-        source = ALB("lb")
-        
-    with Cluster("private network"):
-        workers = [Fargate("worker1"),
-                    Fargate("worker2"),
-                    Fargate("worker3")]
+    source = ALB("lb")
+    
+    workers = [Fargate("worker1"),
+                Fargate("worker2"),
+                Fargate("worker3")]
 
-        cache = ElasticacheForRedis("backplane")
-        gw = NATGateway("nat gw")
+    cache = ElasticacheForRedis("backplane")
 
     source >> workers >> cache
