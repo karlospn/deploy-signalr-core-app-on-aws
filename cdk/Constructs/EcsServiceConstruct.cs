@@ -101,7 +101,7 @@ namespace FargateCdkStack.Constructs
                 {
                     TaskDefinition = task,
                     Cluster = cluster,
-                    DesiredCount = 2,
+                    DesiredCount = 3,
                     MinHealthyPercent = 100,
                     MaxHealthyPercent = 200,
                     AssignPublicIp = true,
